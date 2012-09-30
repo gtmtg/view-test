@@ -67,6 +67,17 @@ function checkDir(dir, type) {
   return directory;
 }
 
+function checkIndex(filename) {
+  var parts = filename.split('.');
+  var indexTemplate = parts[0];
+  var filePath = cli.dir + '/' + indexTemplate + '.' + cli.engine;
+  if (!fs.existsSync(filePath)) {
+    console.log('Index template specified was invalid.')
+    indexTemplate = '';
+  }
+  return indexTemplate;
+}
+
 cli
   .version('0.1.0')
   .option('-e, --engine [string]', 'Specify the templating engine to be used - either “jade” or “ejs” [ejs]')
@@ -74,6 +85,7 @@ cli
   .option('-v, --vars [string]', 'Specify the variables to be rendered in the templates. Note that these should be in JSON format, but with properties separated by a period instead of a comma.')
   .option('-d, --dir [string]', 'Specify the directory of the template files [' + process.cwd().toString() + ']')
   .option('-s, --static [string]', 'Specify the directory of the static files (stylesheets, images, etc) [templates directory]')
+  .option('-i, --index [string]', 'Specify the index template (accessible at localhost:port/)')
   .parse(process.argv);
 
 app.configure(function(){
@@ -100,6 +112,7 @@ app.configure(function(){
   }
   cli.vars = parseVars(cli.vars);
   cli.static = checkDir(cli.static, 'static');
+  cli.index = checkIndex(cli.index);
   app.set('port', cli.port);
   app.set('views',cli.dir);
   app.set('view engine', cli.engine);
@@ -111,6 +124,21 @@ app.configure(function(){
 });
 
 //Handle requests
+app.get('/', function(request, response) {
+  if (cli.index != '') {
+    if (cli.vars == '') {
+      response.render(cli.index);
+    } else {
+      response.render(cli.index, cli.vars);
+    }
+  } else {
+    console.log('No index template specified');
+    response.writeHead(404, {"Content-Type": "text/plain"});
+    response.write('No index template was specified. Please restart view-test with -i or --index to do so.');
+    response.end();
+  }
+});
+
 app.get('/:template', function(request, response) {
   if (fs.existsSync(cli.dir + '/' + request.params.template + '.' + cli.engine)) {
     if (cli.vars == '') {
@@ -119,7 +147,7 @@ app.get('/:template', function(request, response) {
       response.render(request.params.template, cli.vars);
     }
   } else {
-    console.log('Requested template doesn\'t exist');
+    console.log('Requested file doesn\'t exist');
     response.writeHead(404, {"Content-Type": "text/plain"});
     response.write('The requested template does\'t exist. Please check the URL and try again.');
     response.end();

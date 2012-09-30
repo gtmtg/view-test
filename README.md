@@ -11,6 +11,7 @@ These are accessible by typing ```view-test —help``` as well.
 + ```-v, --vars``` — Specify the variables to be rendered in the templates. Defaults to nothing. Note that these should be in JSON format, but with properties separated by a period instead of a comma. If you would like to change this, feel free to fork the project and edit line 22, character 33.
 + ```-d, --dir``` — Specify the directory of the template files. Defaults to the current directory. 
 + ```-s, --static``` — Specify the directory of the static files (stylesheets, images, etc). Defaults to the templates directory.
++ ```-i, --index``` — Specify the index template (accessible at localhost:port/). Defaults to nothing.
 
 ##License and Copyright
 view-test is open-source and is licensed under the MIT License. To put it simply, this means that you can use it in both free and commercial work with a few conditions. For more information, see the license file included with this source code or visit http://opensource.org/licenses/MIT.
