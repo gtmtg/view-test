@@ -44,7 +44,7 @@ function parseVars(vars) {
 function checkDir(dir, type) {
   var directory = dir;
   try {
-    stats = fs.lstatSync(dir);
+    stats = fs.lstatSync(directory);
     if (stats.isDirectory()) {
       directory = directory.replace(/\/$/, '');
     } else {
@@ -68,12 +68,16 @@ function checkDir(dir, type) {
 }
 
 function checkIndex(filename) {
-  var parts = filename.split('.');
-  var indexTemplate = parts[0];
-  var filePath = cli.dir + '/' + indexTemplate + '.' + cli.engine;
-  if (!fs.existsSync(filePath)) {
-    console.log('Index template specified was invalid.')
-    indexTemplate = '';
+  if (filename != '') {
+    var parts = filename.split('.');
+    var indexTemplate = parts[0];
+    var filePath = cli.dir + '/' + indexTemplate + '.' + cli.engine;
+    if (!fs.existsSync(filePath)) {
+      console.log('Index template specified was invalid.')
+      indexTemplate = '';
+    }
+  } else {
+    var indexTemplate = '';
   }
   return indexTemplate;
 }
@@ -97,6 +101,9 @@ app.configure(function(){
   }
   if (!cli.vars) {
     cli.vars = '';
+  }
+  if (!cli.index) {
+    cli.index = '';
   }
   if (!cli.dir) {
     cli.dir = process.cwd().toString();
